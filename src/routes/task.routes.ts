@@ -5,6 +5,7 @@ import {
   addParentTask,
   createTask,
   deleteTask,
+  getParentTasks,
   getTasks,
   removeParentTask,
   updateTask,
@@ -21,5 +22,7 @@ taskRouter.delete('/:task_id/delete', deleteTask);
 taskRouter.post('/:task_id/add_parent_task', addParentTask);
 
 taskRouter.delete('/:task_id/remove_parent_task', removeParentTask);
+
+taskRouter.get('/:task_id/get_parent_tasks', getParentTasks);
 
 export default taskRouter;

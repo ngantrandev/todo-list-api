@@ -329,3 +329,67 @@ export const removeParentTask = async (req: CustomRequest, res: Response) => {
     );
   }
 };
+
+const findParent = async (taskId: number, list: Array<any>) => {
+  const query = `
+  SELECT
+    tasks.*
+  FROM task_dependencies
+  INNER JOIN tasks ON task_dependencies.parent_task_id = tasks.task_id
+  WHERE task_dependencies.task_id = ?`;
+  const parentTasks: Task[] = (await executeQuery(query, [taskId])) as Task[];
+
+  if (parentTasks.length === 0) {
+    return;
+  } else {
+    parentTasks.forEach((task) => {
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].task_id === task.task_id) {
+          return;
+        }
+      }
+
+      list.push(task);
+    });
+
+    for (let i = 0; i < parentTasks.length; i++) {
+      const task = parentTasks[i];
+      await findParent(task.task_id, list);
+    }
+  }
+};
+
+export const getParentTasks = async (req: CustomRequest, res: Response) => {
+  try {
+    const { task_id } = req.params;
+
+    if (!task_id) {
+      sendResponse(res, StatusCodes.BAD_REQUEST, 'missing task_id param');
+      return;
+    }
+
+    if (!isValidInteger(task_id)) {
+      sendResponse(res, StatusCodes.BAD_REQUEST, 'task id must be interger');
+      return;
+    }
+
+    const listParentTask: Array<any> = [];
+
+    await findParent(Number(task_id), listParentTask);
+
+    const newList = listParentTask.map(({ due_date, ...other }) => {
+      return {
+        ...other,
+        due_date: convertTimezoneVN(due_date),
+      };
+    });
+
+    sendResponse(res, StatusCodes.OK, 'get parent tasks successfully', newList);
+  } catch (err) {
+    sendResponse(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Internal Server Error' + err
+    );
+  }
+};

@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface Task {
-  id: number;
+  task_id: number;
   title: string;
   description: string;
   due_date: string;
