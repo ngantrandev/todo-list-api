@@ -1,0 +1,26 @@
+Table tasks {
+	task_id integer [ pk, increment, not null, unique ]
+	title varchar [ not null ]
+	description text [ not null ]
+	due_date datetime [ not null ]
+	priority tinyint [ not null ]
+	status tinyint [ not null ]
+	user_id integer [ not null ]
+}
+
+Table users {
+	user_id integer [ pk, increment, not null, unique ]
+	username varchar [ not null ]
+	password varchar [ not null ]
+	email varchar
+}
+
+Table task_dependencies {
+	id integer [ pk, not null ]
+	task_id integer [ increment, not null, unique ]
+	parent_task_id integer [ not null ]
+}
+
+Ref fk_tasks_user_id_users {
+	tasks.user_id > users.user_id [ delete: no action, update: no action ]
+}
