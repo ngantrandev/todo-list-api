@@ -237,3 +237,95 @@ export const deleteTask = async (req: CustomRequest, res: Response) => {
     );
   }
 };
+
+export const addParentTask = async (req: CustomRequest, res: Response) => {
+  try {
+    const { task_id } = req.params;
+
+    if (!task_id) {
+      sendResponse(res, StatusCodes.BAD_REQUEST, 'missing task_id param');
+      return;
+    }
+
+    if (!isValidInteger(task_id)) {
+      sendResponse(res, StatusCodes.BAD_REQUEST, 'task id must be interger');
+      return;
+    }
+
+    if (!req.body.parent_task_id) {
+      sendResponse(
+        res,
+        StatusCodes.BAD_REQUEST,
+        'missing parent_task_id field'
+      );
+      return;
+    }
+
+    if (!isValidInteger(req.body.parent_task_id)) {
+      sendResponse(
+        res,
+        StatusCodes.BAD_REQUEST,
+        'parent_task_id must be interger'
+      );
+      return;
+    }
+
+    const query = `INSERT INTO task_dependencies (task_id, parent_task_id) VALUES (?, ?)`;
+
+    await executeQuery(query, [task_id, req.body.parent_task_id]);
+
+    sendResponse(res, StatusCodes.OK, 'add parent task successfully');
+  } catch (err) {
+    sendResponse(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Internal Server Error' + err
+    );
+  }
+};
+
+export const removeParentTask = async (req: CustomRequest, res: Response) => {
+  try {
+    const { task_id } = req.params;
+
+    if (!task_id) {
+      sendResponse(res, StatusCodes.BAD_REQUEST, 'missing task_id param');
+      return;
+    }
+
+    if (!isValidInteger(task_id)) {
+      sendResponse(res, StatusCodes.BAD_REQUEST, 'task id must be interger');
+      return;
+    }
+
+    if (!req.body.parent_task_id) {
+      sendResponse(
+        res,
+        StatusCodes.BAD_REQUEST,
+        'missing parent_task_id field'
+      );
+      return;
+    }
+
+    if (!isValidInteger(req.body.parent_task_id)) {
+      sendResponse(
+        res,
+        StatusCodes.BAD_REQUEST,
+        'parent_task_id must be interger'
+      );
+      return;
+    }
+
+    const query = `DELETE FROM task_dependencies WHERE task_id = ? AND parent_task_id = ?`;
+
+    await executeQuery(query, [task_id, req.body.parent_task_id]);
+
+    sendResponse(res, StatusCodes.OK, 'remove parent task successfully');
+  } catch (err) {
+    sendResponse(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Internal Server Error' + err
+    );
+  }
+};
