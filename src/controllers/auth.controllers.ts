@@ -131,7 +131,7 @@ export const signin = async (req: CustomRequest, res: Response) => {
 
     const token = generateJWT(
       {
-        user_id: users[0].id,
+        user_id: users[0].user_id,
         username: formUsername,
       },
       envConfig.JWT_SECRET_KEY,

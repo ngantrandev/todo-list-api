@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import moment from 'moment-timezone';
 
 import pool from '@/configs/db.config';
 
@@ -82,4 +83,12 @@ export const generateJWT = (
   const tokent = jwt.sign(payload, secretOrPrivateKey, options);
 
   return tokent;
+};
+
+export const isValidDateTime = (date: string) => {
+  return moment(date, 'YYYY-MM-DD HH:mm', true).isValid();
+};
+
+export const convertTimezoneVN = (date: string) => {
+  return moment(date).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm');
 };

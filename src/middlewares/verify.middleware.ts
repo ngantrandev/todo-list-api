@@ -13,7 +13,7 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.token as string | undefined;
+  const token = req.headers.authorization as string | undefined;
 
   if (token) {
     const accessToken = token.trim().split(' ')[1]; // remove "Bearer" from token
@@ -60,19 +60,23 @@ export const verifyCurrentUser = async (
     return;
   }
 
-  const query = `SELECT * FROM users WHERE id = ?`;
+  const query = `SELECT * FROM users WHERE user_id = ?`;
   const users: User[] = (await selectData(query, [
     req.params.user_id,
   ])) as User[];
 
   // not found this user with id
   if (users.length === 0) {
-    sendResponse(res, StatusCodes.NOT_FOUND, 'not found this user');
+    sendResponse(
+      res,
+      StatusCodes.NOT_FOUND,
+      'You are not allowed to do this action'
+    );
     return;
   }
 
   // difference user
-  if (users[0].id != req.tokenPayload.user_id) {
+  if (users[0].user_id != req.tokenPayload?.user_id) {
     sendResponse(
       res,
       StatusCodes.FORBIDDEN,
