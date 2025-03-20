@@ -22,4 +22,13 @@ pool.on('error', (err: NodeJS.ErrnoException) => {
   console.error('Missing database connection ', err);
 });
 
+// create connection
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to database: ', err.message);
+  } else {
+    console.log('Connected to database successfully');
+  }
+});
+
 export default pool;

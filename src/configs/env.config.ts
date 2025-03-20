@@ -4,7 +4,7 @@ dotenv.config();
 
 const env = process.env;
 
-const APP_PORT = env.APP_PORT || 3000;
+const APP_PORT = env.APP_PORT;
 
 const DB_PORT = env.DB_PORT;
 const DB_HOST = env.DB_HOST;
@@ -23,6 +23,10 @@ const JWT_SECRET_KEY = env.JWT_SECRET_KEY as string;
 const ACCESS_TOKEN_EXPIRES_IN = env.ACCESS_TOKEN_EXPIRES_IN as
   | StringValue
   | number;
+
+if (!APP_PORT) {
+  throw new Error('Missing application port. Please check your ".env" file.');
+}
 
 if (!DB_PORT || !DB_HOST || !DB_USER || !DB_NAME) {
   throw new Error(

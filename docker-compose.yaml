@@ -1,0 +1,47 @@
+services:
+  mysqlhost:
+    image: mariadb:10.4.28
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: tododb
+    ports:
+      - '3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./documents/db/tododb.sql:/docker-entrypoint-initdb.d/tododb.sql
+
+  redishost:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379'
+    volumes:
+      - /path/to/local/dаta:/root/redis
+    environment:
+      - REDIS_PORT=6379
+
+  api:
+    image: todolist-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '8000:8000'
+    depends_on:
+      - mysqlhost
+      - redishost
+    environment:
+      APP_PORT: 8000
+      DB_HOST: mysqlhost
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: password
+      DB_NAME: tododb
+      REDIS_HOST: redishost
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+
+volumes:
+  mysql_data:
