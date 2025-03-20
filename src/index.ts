@@ -4,6 +4,8 @@ import envConfig from '@/configs/env.config';
 import { loggerMiddleware } from '@/middlewares/logger.middleware';
 import apiRouter from '@/routes/api.routes';
 
+import '@/configs/schedule.config';
+
 const app = express();
 
 app.use(express.json());

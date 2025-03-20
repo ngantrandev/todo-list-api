@@ -3,8 +3,10 @@ import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import moment from 'moment-timezone';
+import nodemailer from 'nodemailer';
 
 import pool from '@/configs/db.config';
+import envConfig from '@/configs/env.config';
 
 export const selectData = async (query: string, listParams: any[] = []) => {
   return new Promise((resolve, reject) => {
@@ -105,5 +107,36 @@ export const generateRedisKey = (options: Object): string => {
       .join(':');
   } catch (error) {
     return 'UNDEFINED';
+  }
+};
+
+export const sendMail = async (
+  email: string,
+  subject: string,
+  body: string
+) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: envConfig.EMAIL_HOST,
+      auth: {
+        user: envConfig.EMAIL_USER,
+        pass: envConfig.EMAIL_PASS,
+      },
+    });
+
+    const mailFrom = `Todo List Application <${envConfig.EMAIL_USER}>`;
+
+    const mailOptions = {
+      from: mailFrom,
+      to: email,
+      subject: subject,
+      html: body,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return info;
+  } catch (error: any) {
+    throw new Error(error);
   }
 };

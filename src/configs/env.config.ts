@@ -12,6 +12,10 @@ const DB_USER = env.DB_USER;
 const DB_PASS = env.DB_PASS;
 const DB_NAME = env.DB_NAME;
 
+const EMAIL_HOST = env.EMAIL_HOST;
+const EMAIL_USER = env.EMAIL_USER;
+const EMAIL_PASS = env.EMAIL_PASS;
+
 const REDIS_PORT = env.REDIS_PORT;
 const REDIS_HOST = env.REDIS_HOST;
 
@@ -44,6 +48,18 @@ if (!REDIS_HOST) {
   throw new Error('Missing Redis host. Please check your ".env" file.');
 }
 
+if (!EMAIL_HOST) {
+  throw new Error('Missing email host. Please check your ".env" file.');
+}
+
+if (!EMAIL_USER) {
+  throw new Error('Missing email user. Please check your ".env" file.');
+}
+
+if (!EMAIL_PASS) {
+  throw new Error('Missing email password. Please check your ".env" file.');
+}
+
 const envConfig = {
   APP_PORT: Number(APP_PORT),
   DB_PORT: Number(DB_PORT),
@@ -55,6 +71,9 @@ const envConfig = {
   ACCESS_TOKEN_EXPIRES_IN,
   REDIS_PORT: Number(REDIS_PORT),
   REDIS_HOST,
+  EMAIL_HOST,
+  EMAIL_USER,
+  EMAIL_PASS,
 };
 
 export default envConfig;

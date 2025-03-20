@@ -23,3 +23,7 @@ export interface TaskNode {
   task_id: number;
   parents: TaskNode[];
 }
+
+export interface ExpiringTaskType extends Task {
+  email: string;
+}
