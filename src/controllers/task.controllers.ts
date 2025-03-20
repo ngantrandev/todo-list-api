@@ -272,6 +272,53 @@ export const addParentTask = async (req: CustomRequest, res: Response) => {
       return;
     }
 
+    /**
+     * CHECK IF EXIST CIRCULAR DEPENDENCY WITH NEW PARENT
+     */
+
+    const taskDependencies: TaskDependency[] = (await selectData(
+      'SELECT * FROM task_dependencies',
+      []
+    )) as TaskDependency[];
+
+    // IF WE ADD NEW PARENT TASK, WE NEED TO ADD THIS TO THE LIST
+    const fakeTaskDependency = {
+      task_id: Number(task_id),
+      parent_task_id: Number(req.body.parent_task_id),
+    };
+
+    taskDependencies.push(fakeTaskDependency);
+
+    const circularStack = findCircular(taskDependencies);
+
+    if (circularStack) {
+      const listCircular = circularStack.split('-').map((id) => Number(id));
+
+      const result: Task[] = (await selectData(
+        `SELECT * FROM tasks WHERE task_id IN (${listCircular.join(',')})`,
+        listCircular
+      )) as Task[];
+
+      const newList = result.map(({ due_date, ...other }) => {
+        return {
+          ...other,
+          due_date: convertTimezoneVN(due_date),
+        };
+      });
+
+      sendResponse(
+        res,
+        StatusCodes.BAD_REQUEST,
+        'found circular dependencies',
+        {
+          stack: circularStack,
+          tasks: newList,
+        }
+      );
+
+      return;
+    }
+
     const query = `INSERT INTO task_dependencies (task_id, parent_task_id) VALUES (?, ?)`;
 
     await executeQuery(query, [task_id, req.body.parent_task_id]);
@@ -406,31 +453,7 @@ export const detectCircularDependency = async (
       []
     )) as TaskDependency[];
 
-    const listNode: TaskNode[] = [];
-
-    for (let i = 0; i < taskDependencies.length; i++) {
-      const task = taskDependencies[i];
-
-      let taskNode = listNode.find((node) => node.task_id === task.task_id);
-
-      let parentNode = listNode.find(
-        (node) => node.task_id === task.parent_task_id
-      );
-
-      if (!taskNode) {
-        taskNode = { task_id: task.task_id, parents: [] };
-        listNode.push(taskNode);
-      }
-
-      if (!parentNode) {
-        parentNode = { task_id: task.parent_task_id, parents: [] };
-        listNode.push(parentNode);
-      }
-
-      taskNode.parents.push(parentNode);
-    }
-
-    const circularStack = findCircular(listNode);
+    const circularStack = findCircular(taskDependencies);
 
     if (circularStack) {
       const listCircular = circularStack.split('-').map((id) => Number(id));

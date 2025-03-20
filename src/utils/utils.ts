@@ -40,6 +40,7 @@ export const sendResponse = (
     res.status(statusCode).json({
       success: false,
       message,
+      ...(data != null && { data }),
     });
   } else {
     res.status(statusCode).json({

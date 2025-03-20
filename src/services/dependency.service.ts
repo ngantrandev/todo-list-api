@@ -1,4 +1,4 @@
-import { TaskNode } from '@/types/models';
+import { TaskDependency, TaskNode } from '@/types/models';
 
 function findNode(list: TaskNode[], task: TaskNode) {
   for (let i = 0; i < list.length; i++) {
@@ -39,8 +39,12 @@ function dep_resolve(
   });
 }
 
-export const findCircular = (listNode: TaskNode[]): string | undefined => {
+export const findCircular = (
+  taskDependencies: TaskDependency[]
+): string | undefined => {
   try {
+    const listNode = getListNode(taskDependencies);
+
     for (let i = 0; i < listNode.length; i++) {
       const node = listNode[i];
       dep_resolve(node, [], []);
@@ -51,4 +55,32 @@ export const findCircular = (listNode: TaskNode[]): string | undefined => {
 
     return circularStack;
   }
+};
+
+export const getListNode = (taskDependencies: TaskDependency[]): TaskNode[] => {
+  const listNode: TaskNode[] = [];
+
+  for (let i = 0; i < taskDependencies.length; i++) {
+    const task = taskDependencies[i];
+
+    let taskNode = listNode.find((node) => node.task_id === task.task_id);
+
+    let parentNode = listNode.find(
+      (node) => node.task_id === task.parent_task_id
+    );
+
+    if (!taskNode) {
+      taskNode = { task_id: task.task_id, parents: [] };
+      listNode.push(taskNode);
+    }
+
+    if (!parentNode) {
+      parentNode = { task_id: task.parent_task_id, parents: [] };
+      listNode.push(parentNode);
+    }
+
+    taskNode.parents.push(parentNode);
+  }
+
+  return listNode;
 };
