@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "moment-timezone": "^0.5.47",
     "mysql2": "^3.13.0",
+    "redis": "^4.7.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {

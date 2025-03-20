@@ -12,6 +12,9 @@ const DB_USER = env.DB_USER;
 const DB_PASS = env.DB_PASS;
 const DB_NAME = env.DB_NAME;
 
+const REDIS_PORT = env.REDIS_PORT;
+const REDIS_HOST = env.REDIS_HOST;
+
 const JWT_SECRET_KEY = env.JWT_SECRET_KEY as string;
 const ACCESS_TOKEN_EXPIRES_IN = env.ACCESS_TOKEN_EXPIRES_IN as
   | StringValue
@@ -33,6 +36,14 @@ if (!ACCESS_TOKEN_EXPIRES_IN) {
   );
 }
 
+if (!REDIS_PORT) {
+  throw new Error('Missing Redis port. Please check your ".env" file.');
+}
+
+if (!REDIS_HOST) {
+  throw new Error('Missing Redis host. Please check your ".env" file.');
+}
+
 const envConfig = {
   APP_PORT: Number(APP_PORT),
   DB_PORT: Number(DB_PORT),
@@ -42,6 +53,8 @@ const envConfig = {
   DB_NAME,
   JWT_SECRET_KEY,
   ACCESS_TOKEN_EXPIRES_IN,
+  REDIS_PORT: Number(REDIS_PORT),
+  REDIS_HOST,
 };
 
 export default envConfig;

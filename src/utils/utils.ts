@@ -93,3 +93,17 @@ export const isValidDateTime = (date: string) => {
 export const convertTimezoneVN = (date: string) => {
   return moment(date).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm');
 };
+
+export const generateRedisKey = (options: Object): string => {
+  try {
+    if (!options) {
+      return 'UNDEFINED';
+    }
+
+    return Object.entries(options)
+      .map(([key, value]) => `${key}:${value}`)
+      .join(':');
+  } catch (error) {
+    return 'UNDEFINED';
+  }
+};

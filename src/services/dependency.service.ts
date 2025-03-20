@@ -43,7 +43,7 @@ export const findCircular = (
   taskDependencies: TaskDependency[]
 ): string | undefined => {
   try {
-    const listNode = getListNode(taskDependencies);
+    const listNode = createListNode(taskDependencies);
 
     for (let i = 0; i < listNode.length; i++) {
       const node = listNode[i];
@@ -57,7 +57,9 @@ export const findCircular = (
   }
 };
 
-export const getListNode = (taskDependencies: TaskDependency[]): TaskNode[] => {
+export const createListNode = (
+  taskDependencies: TaskDependency[]
+): TaskNode[] => {
   const listNode: TaskNode[] = [];
 
   for (let i = 0; i < taskDependencies.length; i++) {

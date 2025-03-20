@@ -1,17 +1,19 @@
 import { Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 import { CustomRequest } from '@/types/requests';
 import {
   convertTimezoneVN,
   executeQuery,
+  generateRedisKey,
   isValidDateTime,
   isValidInteger,
   selectData,
   sendResponse,
 } from '@/utils/utils';
-import { StatusCodes } from 'http-status-codes';
-import { TaskNode, Task, TaskDependency } from '@/types/models';
+import { Task, TaskDependency } from '@/types/models';
 import { findCircular } from '@/services/dependency.service';
+import client from '@/configs/redis.config';
 
 export const getTasks = async (req: CustomRequest, res: Response) => {
   try {
@@ -23,6 +25,29 @@ export const getTasks = async (req: CustomRequest, res: Response) => {
 
     if (!limit) {
       limit = '10';
+    }
+
+    /**
+     * CHECK IN REDIS CACHE
+     */
+
+    const cacheKey = generateRedisKey({
+      user_id: req.tokenPayload?.user_id,
+      cursor: cursor,
+      limit: limit,
+      search: search,
+    });
+
+    const cachedData = await client.get(cacheKey);
+
+    if (cachedData) {
+      sendResponse(
+        res,
+        StatusCodes.OK,
+        'get tasks successfully',
+        JSON.parse(cachedData)
+      );
+      return;
     }
 
     const wheres = [];
@@ -68,15 +93,22 @@ export const getTasks = async (req: CustomRequest, res: Response) => {
       SELECT * 
       FROM tasks 
       WHERE ${wheres.join(' AND ')}
+      ORDER BY due_date
       LIMIT ?
     `;
 
     const tasks: Task[] = (await executeQuery(query, args)) as Task[];
 
-    const newList = tasks.map(({ due_date, ...other }) => ({
+    const newList: Task[] = tasks.map(({ due_date, ...other }) => ({
       ...other,
       due_date: convertTimezoneVN(due_date),
     }));
+
+    /**
+     * SAVE TO REDIS CACHE
+     */
+
+    await client.setEx(cacheKey, 60, JSON.stringify(newList));
 
     sendResponse(res, StatusCodes.OK, 'get tasks successfully', newList);
   } catch (err) {
@@ -422,6 +454,24 @@ export const getParentTasks = async (req: CustomRequest, res: Response) => {
       return;
     }
 
+    const cacheKey = generateRedisKey({
+      key: 'parent_tasks',
+      user_id: req.tokenPayload?.user_id,
+      task_id: task_id,
+    });
+
+    const cachedData = await client.get(cacheKey);
+
+    if (cachedData) {
+      sendResponse(
+        res,
+        StatusCodes.OK,
+        'get parent tasks successfully',
+        JSON.parse(cachedData)
+      );
+      return;
+    }
+
     const listParentTask: Array<any> = [];
 
     await findParent(Number(task_id), listParentTask);
@@ -432,6 +482,8 @@ export const getParentTasks = async (req: CustomRequest, res: Response) => {
         due_date: convertTimezoneVN(due_date),
       };
     });
+
+    await client.setEx(cacheKey, 60, JSON.stringify(newList));
 
     sendResponse(res, StatusCodes.OK, 'get parent tasks successfully', newList);
   } catch (err) {
