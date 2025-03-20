@@ -6,10 +6,12 @@ import {
   executeQuery,
   isValidDateTime,
   isValidInteger,
+  selectData,
   sendResponse,
 } from '@/utils/utils';
 import { StatusCodes } from 'http-status-codes';
-import { Task } from '@/types/models';
+import { TaskNode, Task, TaskDependency } from '@/types/models';
+import { findCircular } from '@/services/dependency.service';
 
 export const getTasks = async (req: CustomRequest, res: Response) => {
   try {
@@ -385,6 +387,75 @@ export const getParentTasks = async (req: CustomRequest, res: Response) => {
     });
 
     sendResponse(res, StatusCodes.OK, 'get parent tasks successfully', newList);
+  } catch (err) {
+    sendResponse(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Internal Server Error' + err
+    );
+  }
+};
+
+export const detectCircularDependency = async (
+  req: CustomRequest,
+  res: Response
+) => {
+  try {
+    const taskDependencies: TaskDependency[] = (await selectData(
+      `SELECT * FROM task_dependencies`,
+      []
+    )) as TaskDependency[];
+
+    const listNode: TaskNode[] = [];
+
+    for (let i = 0; i < taskDependencies.length; i++) {
+      const task = taskDependencies[i];
+
+      let taskNode = listNode.find((node) => node.task_id === task.task_id);
+
+      let parentNode = listNode.find(
+        (node) => node.task_id === task.parent_task_id
+      );
+
+      if (!taskNode) {
+        taskNode = { task_id: task.task_id, parents: [] };
+        listNode.push(taskNode);
+      }
+
+      if (!parentNode) {
+        parentNode = { task_id: task.parent_task_id, parents: [] };
+        listNode.push(parentNode);
+      }
+
+      taskNode.parents.push(parentNode);
+    }
+
+    const circularStack = findCircular(listNode);
+
+    if (circularStack) {
+      const listCircular = circularStack.split('-').map((id) => Number(id));
+
+      const result: Task[] = (await selectData(
+        `SELECT * FROM tasks WHERE task_id IN (${listCircular.join(',')})`,
+        listCircular
+      )) as Task[];
+
+      const newList = result.map(({ due_date, ...other }) => {
+        return {
+          ...other,
+          due_date: convertTimezoneVN(due_date),
+        };
+      });
+
+      sendResponse(res, StatusCodes.OK, 'found circular dependencies', {
+        stack: circularStack,
+        tasks: newList,
+      });
+
+      return;
+    }
+
+    sendResponse(res, StatusCodes.OK, 'no circular dependencies found');
   } catch (err) {
     sendResponse(
       res,

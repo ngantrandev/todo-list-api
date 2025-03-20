@@ -14,3 +14,12 @@ export interface Task {
   user_id: number;
   status: number;
 }
+
+export interface TaskDependency {
+  task_id: number;
+  parent_task_id: number;
+}
+export interface TaskNode {
+  task_id: number;
+  parents: TaskNode[];
+}

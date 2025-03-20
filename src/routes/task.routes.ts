@@ -5,6 +5,7 @@ import {
   addParentTask,
   createTask,
   deleteTask,
+  detectCircularDependency,
   getParentTasks,
   getTasks,
   removeParentTask,
@@ -24,5 +25,7 @@ taskRouter.post('/:task_id/add_parent_task', addParentTask);
 taskRouter.delete('/:task_id/remove_parent_task', removeParentTask);
 
 taskRouter.get('/:task_id/get_parent_tasks', getParentTasks);
+
+taskRouter.get('/detect_circular_dependency', detectCircularDependency);
 
 export default taskRouter;
