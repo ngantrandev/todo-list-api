@@ -31,6 +31,7 @@ This project is a simple API for managing todo list.
 - Create / Delete a reference between tasks
 - Detect a circular dependency in tasks
 - Prevent circular dependency when adding new reference
+- Periodically check tasks that are about to expire and send email notifications 
 
 ## 3. 🚀 What technologies does this project use?
 
@@ -60,7 +61,7 @@ This project is a simple API for managing todo list.
 - For example, we have a graph with path: **3 -> 6 -> 7 -> 3**
 - Task 3 in the end of path is seen at the top, but it is not resolved yet, because of Task 3 depends on Task 6 and so on.
 
-**This is how we can detect it**
+**This is how we can detect it by Pseudocode**
 
 ```bash
 function dep_resolve(node, visited, unFinished) {
@@ -80,6 +81,20 @@ function dep_resolve(node, visited, unFinished) {
   visited.push(node);
   unFinished.remove(node);
 }
+
+// call function
+
+type Node = {
+  id: number,
+  parents: Node[]
+}
+
+let firstNode : Node = {
+  id: ...,
+  parents: [ ... ]
+}
+
+dep_resolve(firstNode, [], []);
 ```
 
 ## 5. How to run this project?
