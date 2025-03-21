@@ -137,6 +137,6 @@ export const sendMail = async (
 
     return info;
   } catch (error: any) {
-    throw new Error(error);
+    console.log('Error send mail:', error.message);
   }
 };

@@ -52,17 +52,17 @@ if (!REDIS_HOST) {
   throw new Error('Missing Redis host. Please check your ".env" file.');
 }
 
-if (!EMAIL_HOST) {
-  throw new Error('Missing email host. Please check your ".env" file.');
-}
+// if (!EMAIL_HOST) {
+//   throw new Error('Missing email host. Please check your ".env" file.');
+// }
 
-if (!EMAIL_USER) {
-  throw new Error('Missing email user. Please check your ".env" file.');
-}
+// if (!EMAIL_USER) {
+//   throw new Error('Missing email user. Please check your ".env" file.');
+// }
 
-if (!EMAIL_PASS) {
-  throw new Error('Missing email password. Please check your ".env" file.');
-}
+// if (!EMAIL_PASS) {
+//   throw new Error('Missing email password. Please check your ".env" file.');
+// }
 
 const envConfig = {
   APP_PORT: Number(APP_PORT),
