@@ -1,6 +1,6 @@
 # TODO LIST API
 
-## 1. What does this project do?
+## 1. What is this project used for?
 
 This project is a simple API for managing todo list.
 
