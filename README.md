@@ -4,7 +4,6 @@
 
 - Documents folder: database and postman collection
 
-
 ## 1. What is this project used for?
 
 This project is a simple API for managing todo list.
@@ -31,9 +30,49 @@ This project is a simple API for managing todo list.
 - JWT
 - Docker
 
-## 4. How to run this project?
+## 4. What is circular dependency?
 
-### 4.1. First method: with docker
+### 4.1. Definition
+
+- Firstly, you can see the image below describe how task reference each other
+- Each task can have multiple parent tasks and multiple child tasks
+
+- <code>Circular dependency</code> problem occurs when <code>Task 3</code> depends on <code>Task 6</code> and <code>Task 6</code> depends on <code>Task 7</code> and <code>Task 7</code> depends on <code>Task 3</code> and... We have now got a circular dependency.😒😒
+
+![circular-dependency](./documents//circular_dependency.png)
+
+### 4.2. How to detect it
+
+- Look at the image, we can see that like a graph, where each Node depends on other Nodes.
+- So, how to detect it? The idea is when a Node is seen, but it is not resolved yet, we can say that we have a circular dependency.
+- For example, we have a graph with path: **3 -> 6 -> 7 -> 3**
+- Task 3 in the end of path is seen at the top, but it is not resolved yet, because of Task 3 depends on Task 6 and so on.
+
+**This is how we can detect it**
+
+```bash
+function dep_resolve(node, visited, unFinished) {
+
+  unFinished.push(node);
+
+  for parentNode in node.parents {
+
+    if parentNode not in visited {
+      if parentNode in unFinished {
+
+        // we detected circular dependency here
+      }
+      dep_resolve(parentNode, visited, unFinished);
+    }
+  }
+  visited.push(node);
+  unFinished.remove(node);
+}
+```
+
+## 5. How to run this project?
+
+### 5.1. First method: with docker
 
 - Clone this project
 - Create <code>.env</code> file in the root directory with following format
@@ -65,7 +104,7 @@ This project is a simple API for managing todo list.
   docker-compose up --build
 ```
 
-### 4.2. Second method: without docker
+### 5.2. Second method: without docker
 
 - Clone this project
 - Create <code>.env</code> file in the root directory with following format
