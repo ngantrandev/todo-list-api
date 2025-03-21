@@ -1,5 +1,10 @@
 # TODO LIST API
 
+- Plan: https://docs.google.com/document/d/1HzEkPgcPmaZr2aXNdBmNr2lR0lxgDbRHEJrFaxJjstc/edit?usp=sharing
+
+- Documents folder: database and postman collection
+
+
 ## 1. What is this project used for?
 
 This project is a simple API for managing todo list.
