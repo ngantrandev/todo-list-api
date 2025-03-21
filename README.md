@@ -4,6 +4,18 @@
 
 - Documents folder: database and postman collection
 
+## SUMMARY
+
+- [1. What is this project used for?](#1-what-is-this-project-used-for)
+- [2. What does this project can do?](#2-what-does-this-project-can-do)
+- [3. 🚀 What technologies does this project use?](#3-what-technologies-does-this-project-use)
+- [4. What is circular dependency?](#4-what-is-circular-dependency)
+  - [4.1. Definition](#41-definition)
+  - [4.2. How to detect it](#42-how-to-detect-it)
+- [5. How to run this project?](#5-how-to-run-this-project)
+  - [5.1. First method: with docker](#51-first-method-with-docker)
+  - [5.2. Second method: without docker](#52-second-method-without-docker)
+
 ## 1. What is this project used for?
 
 This project is a simple API for managing todo list.
